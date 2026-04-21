@@ -401,9 +401,39 @@ with tab1:
             "Worst Day":  daily_pivot.min(),
         }).round(0)
         summary = summary.sort_values("Total PnL", ascending=False)
-        st.dataframe(summary.style.format("{:,.0f}")
-                     .background_gradient(cmap="RdYlGn", axis=0, subset=["Total PnL"]),
-                     use_container_width=True)
+        def _cell_color(val):
+            if val > 0:
+                intensity = min(val / (summary["Total PnL"].abs().max() + 1e-9), 1.0)
+                g = int(80 + 120 * intensity)
+                return f"rgba(0,{g},80,0.35)"
+            elif val < 0:
+                intensity = min(abs(val) / (summary["Total PnL"].abs().max() + 1e-9), 1.0)
+                r = int(120 + 135 * intensity)
+                return f"rgba({r},40,40,0.35)"
+            return "rgba(30,37,53,0.5)"
+
+        row_colors = [[_cell_color(v) for v in summary["Total PnL"]]]
+        neutral = [["rgba(17,22,32,0.0)"] * len(summary)] * 4
+
+        fig_tbl = go.Figure(go.Table(
+            header=dict(
+                values=["<b>PnL Type</b>"] + [f"<b>{c}</b>" for c in summary.columns],
+                fill_color="#1e2535", font=dict(family="IBM Plex Mono", color="#e2e8f0", size=10),
+                align="right", line_color="#0b0e13", height=28,
+            ),
+            cells=dict(
+                values=[summary.index.tolist()] + [
+                    [f"{v:,.0f}" for v in summary[col]] for col in summary.columns
+                ],
+                fill_color=[["rgba(17,22,32,0.6)"] * len(summary)] + row_colors + neutral,
+                font=dict(family="IBM Plex Mono", color="#e2e8f0", size=10),
+                align=["left"] + ["right"] * len(summary.columns),
+                line_color="#0b0e13", height=24,
+            ),
+        ))
+        fig_tbl.update_layout(**PLOT_LAYOUT, height=80 + len(summary) * 26,
+                              margin=dict(l=0, r=0, t=0, b=0))
+        st.plotly_chart(fig_tbl, use_container_width=True)
 
 # ══════════════════════════════════════════════
 # TAB 2 — Currency Breakdown
