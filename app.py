@@ -431,7 +431,9 @@ with tab1:
                 line_color="#0b0e13", height=24,
             ),
         ))
-        fig_tbl.update_layout(**PLOT_LAYOUT, height=80 + len(summary) * 26,
+        fig_tbl.update_layout(paper_bgcolor="#111620", plot_bgcolor="#111620",
+                              font=dict(family="IBM Plex Mono", color="#e2e8f0", size=11),
+                              height=80 + len(summary) * 26,
                               margin=dict(l=0, r=0, t=0, b=0))
         st.plotly_chart(fig_tbl, use_container_width=True)
 
