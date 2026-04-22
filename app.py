@@ -24,9 +24,9 @@ st.markdown("""
 :root {
     --bg:       #B5E6A2;   /* soft blue-grey background (THIS is your image vibe) */
     --surface:  #000026;   /* table/cards stay white */
-    --border:   #2300B8;   /* slightly blue-tinted border */
+    --border:   #2300B8;   /* green */
 
-    --accent:   #ffffff;   /* header green */
+    --accent:   #2300B8;   /* header green */
     --accent2:  #000026;
 
     --warn:     #c85c5c;   /* red */
