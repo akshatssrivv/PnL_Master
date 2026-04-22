@@ -61,7 +61,7 @@ div[data-testid="metric-container"] {
     padding: 1rem 1.25rem;
 }
 div[data-testid="metric-container"] label {
-    color: var(--muted) !important;
+    color: #ffffff;
     font-family: 'IBM Plex Mono', monospace !important;
     font-size: 0.68rem !important;
     letter-spacing: 0.1em !important;
