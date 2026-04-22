@@ -23,7 +23,7 @@ st.markdown("""
 
 :root {
     --bg:       #e8edf5;   /* soft blue-grey background (THIS is your image vibe) */
-    --surface:  #83cceb;   /* table/cards stay white */
+    --surface:  #0000FF;   /* table/cards stay white */
     --border:   #cfd8e6;   /* slightly blue-tinted border */
 
     --accent:   #8fb9a8;   /* header green */
