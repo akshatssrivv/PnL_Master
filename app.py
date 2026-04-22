@@ -30,7 +30,7 @@ st.markdown("""
     --accent2:  #c7dcd3;
 
     --warn:     #c85c5c;   /* red */
-    --text:     #1c2430;   /* dark grey text */
+    --text:     #ffffff;   /* dark grey text */
     --muted:    #6f809c;
 }
 
