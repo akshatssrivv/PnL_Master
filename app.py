@@ -26,7 +26,7 @@ st.markdown("""
     --surface:  #000026;   /* table/cards stay white */
     --border:   #2300B8;   /* blue */
 
-    --accent:   #B5E6A2;   /* header green */
+    --accent:   #31661C;   /* header green */
     --accent2:  #2300B8;
 
     --warn:     #c85c5c;   /* red */
