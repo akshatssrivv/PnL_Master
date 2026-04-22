@@ -22,14 +22,16 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --bg:       #0f1520;
-    --surface:  #151e2d;
-    --border:   #1e2d45;
-    --accent:   #7eb8a0;
-    --accent2:  #a8c4b8;
-    --warn:     #c87070;
-    --text:     #f0f2f5;
-    --muted:    #8a9bb8;
+    --bg:       #f4f6f9;   /* page background */
+    --surface:  #ffffff;   /* table/cards */
+    --border:   #d6dde8;   /* soft grid lines */
+
+    --accent:   #8fb9a8;   /* header green (muted) */
+    --accent2:  #c7dcd3;   /* lighter version for hover/subtle */
+
+    --warn:     #c85c5c;   /* loss (slightly cleaner red) */
+    --text:     #1c2430;   /* main text (dark grey, not black) */
+    --muted:    #6f809c;   /* secondary text */
 }
 
 html, body, [class*="css"] {
