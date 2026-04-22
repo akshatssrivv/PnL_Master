@@ -47,7 +47,7 @@ section[data-testid="stSidebar"] .stSelectbox label,
 section[data-testid="stSidebar"] .stMultiSelect label,
 section[data-testid="stSidebar"] .stDateInput label,
 section[data-testid="stSidebar"] .stSlider label {
-    color: #f0f2f5;
+    color: #83cceb;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.08em;
