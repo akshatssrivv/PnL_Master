@@ -173,7 +173,7 @@ TABLE_LAYOUT = dict(
 # Chart series colors — readable on white
 COLORS = {
     "Total":        "#000000",
-    "Rates":        "#83cceb",
+    "Rates":        "#ffffff",
     "Credit":       "#31661c",
     "Inflation":    "#e08c2a",
     "SwapSpread":   "#7060a0",
