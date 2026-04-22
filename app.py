@@ -269,22 +269,22 @@ TEXT2 = "#7878a0"
 PLOT_LAYOUT = dict(
     paper_bgcolor=BG1,
     plot_bgcolor=BG2,
-    font=dict(family="Space Mono, monospace", color=TEXT2, size=10),
+    font=dict(family="Space Mono, monospace", color=TEXT0, size=10),
     xaxis=dict(
         gridcolor=GRID, linecolor=BORD2, zerolinecolor=BORD2,
-        tickfont=dict(color=TEXT2, size=9), ticklen=0,
+        tickfont=dict(color=TEXT0, size=9), ticklen=0,
         showgrid=True, zeroline=False,
     ),
     yaxis=dict(
         gridcolor=GRID, linecolor=BORD2, zerolinecolor=BORD2,
-        tickfont=dict(color=TEXT2, size=9), ticklen=0,
+        tickfont=dict(color=TEXT0, size=9), ticklen=0,
         showgrid=True, zeroline=True, zerolinewidth=1,
     ),
     legend=dict(
         bgcolor="rgba(15,15,23,0.9)",
         bordercolor=BORD2,
         borderwidth=1,
-        font=dict(color=TEXT1, size=9),
+        font=dict(color=TEXT0, size=9),
         itemsizing="constant",
     ),
     margin=dict(l=48, r=16, t=36, b=36),
@@ -600,7 +600,7 @@ with tab1:
             mode="lines",line=dict(color=TEXT0,width=2,dash="dot"),
             hovertemplate="Total: %{y:,.0f}<extra></extra>"))
     if chart_type=="Bar": fig.update_layout(barmode="relative")
-    apply_dark(fig, height=380, title=dict(text="Daily PnL", font=dict(size=11,color=TEXT2)))
+    apply_dark(fig, height=380, title=dict(text="Daily PnL", font=dict(size=11,color=TEXT0)))
     st.plotly_chart(fig, use_container_width=True)
 
     sh("Cumulative PnL")
@@ -612,7 +612,7 @@ with tab1:
             line=dict(color=COLORS.get(pt,"#606070"),width=2.2 if pt=="Total" else 1.2),
             hovertemplate=f"{pt}: %{{y:,.0f}}<extra></extra>"))
     fig2.add_hline(y=0, line_color=BORD2, line_width=1)
-    apply_dark(fig2, height=300, title=dict(text="Cumulative PnL by Type", font=dict(size=11,color=TEXT2)))
+    apply_dark(fig2, height=300, title=dict(text="Cumulative PnL by Type", font=dict(size=11,color=TEXT0)))
     st.plotly_chart(fig2, use_container_width=True)
 
     sh("Period Summary")
@@ -645,7 +645,7 @@ with tab2:
                 fig3.add_trace(go.Bar(x=ccy_t.index,y=ccy_t[ccy],name=ccy,
                     marker_color=CCY_COLORS[ccy],hovertemplate=f"{ccy}: %{{y:,.0f}}<extra></extra>"))
         apply_dark(fig3,barmode="relative",height=320,
-                   title=dict(text=f"{drill} by Currency",font=dict(size=11,color=TEXT2)))
+                   title=dict(text=f"{drill} by Currency",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fig3, use_container_width=True)
 
     with col_b:
@@ -659,7 +659,7 @@ with tab2:
             hovertemplate="%{label}: %{value:,.0f}<extra></extra>",
         ))
         apply_dark(fig4,height=320,showlegend=True,
-                   title=dict(text="Currency Mix (abs) · Period",font=dict(size=11,color=TEXT2)))
+                   title=dict(text="Currency Mix (abs) · Period",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fig4, use_container_width=True)
 
     sh("Heatmap · Type × Currency")
@@ -674,7 +674,7 @@ with tab2:
         colorbar=dict(tickfont=dict(family="Space Mono",size=8,color=TEXT2),
                       bgcolor=BG1,bordercolor=BORD),
     ))
-    apply_dark(fig5,height=400,title=dict(text="Period PnL — Type × Currency",font=dict(size=11,color=TEXT2)))
+    apply_dark(fig5,height=400,title=dict(text="Period PnL — Type × Currency",font=dict(size=11,color=TEXT0)))
     st.plotly_chart(fig5, use_container_width=True)
 
 # ══════════════════════════════════════════════
@@ -695,7 +695,7 @@ with tab3:
                 marker_color=ISSUER_PALETTE[i%len(ISSUER_PALETTE)],
                 hovertemplate=f"{iss}: %{{y:,.0f}}<extra></extra>"))
         apply_dark(fig6,barmode="relative",height=380,
-                   title=dict(text=f"{metric_sel} by Issuer — Daily",font=dict(size=11,color=TEXT2)))
+                   title=dict(text=f"{metric_sel} by Issuer — Daily",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fig6, use_container_width=True)
 
     with col_d:
@@ -707,7 +707,7 @@ with tab3:
             textposition="outside",textfont=dict(family="Space Mono",size=8,color=TEXT2),
             hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
         ))
-        apply_dark(fig7,height=380,title=dict(text=f"Period Total · {metric_sel}",font=dict(size=11,color=TEXT2)))
+        apply_dark(fig7,height=380,title=dict(text=f"Period Total · {metric_sel}",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fig7, use_container_width=True)
 
     sh("All Metrics · Issuer Heatmap")
@@ -721,7 +721,7 @@ with tab3:
         hovertemplate="Issuer: %{y}<br>Metric: %{x}<br>Value: %{z:,.0f}<extra></extra>",
         colorbar=dict(tickfont=dict(family="Space Mono",size=8,color=TEXT2),bgcolor=BG1,bordercolor=BORD),
     ))
-    apply_dark(fig8,height=480,title=dict(text="Issuer × Metric Heatmap — Period",font=dict(size=11,color=TEXT2)))
+    apply_dark(fig8,height=480,title=dict(text="Issuer × Metric Heatmap — Period",font=dict(size=11,color=TEXT0)))
     st.plotly_chart(fig8, use_container_width=True)
 
     sh(f"Cumulative {metric_sel} by Issuer")
@@ -732,7 +732,7 @@ with tab3:
             line=dict(color=ISSUER_PALETTE[i%len(ISSUER_PALETTE)],width=1.4),
             hovertemplate=f"{iss}: %{{y:,.0f}}<extra></extra>"))
     fig9.add_hline(y=0, line_color=BORD2, line_width=1)
-    apply_dark(fig9,height=340,title=dict(text=f"Cumulative {metric_sel}",font=dict(size=11,color=TEXT2)))
+    apply_dark(fig9,height=340,title=dict(text=f"Cumulative {metric_sel}",font=dict(size=11,color=TEXT0)))
     st.plotly_chart(fig9, use_container_width=True)
 
 # ══════════════════════════════════════════════
@@ -774,7 +774,7 @@ with tab4:
                 hovertemplate="Tenor: %{y}<br>CCY: %{x}<br>Value: %{z:,.0f}<extra></extra>",
                 colorbar=dict(tickfont=dict(family="Space Mono",size=8,color=TEXT2),bgcolor=BG1,bordercolor=BORD),
             ))
-            apply_dark(fh,height=300,title=dict(text=f"{rsel} — Tenor × CCY",font=dict(size=11,color=TEXT2)))
+            apply_dark(fh,height=300,title=dict(text=f"{rsel} — Tenor × CCY",font=dict(size=11,color=TEXT0)))
             st.plotly_chart(fh, use_container_width=True)
 
         if is_iss:
@@ -789,7 +789,7 @@ with tab4:
                 textposition="outside",textfont=dict(family="Space Mono",size=8,color=TEXT2),
                 hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
             ))
-            apply_dark(fi,height=400,title=dict(text=f"{rsel} by Issuer",font=dict(size=11,color=TEXT2)))
+            apply_dark(fi,height=400,title=dict(text=f"{rsel} by Issuer",font=dict(size=11,color=TEXT0)))
             st.plotly_chart(fi, use_container_width=True)
 
         sh(f"{rsel} Over Time")
@@ -808,7 +808,7 @@ with tab4:
                 line=dict(color=CCY_COLORS.get(d,ISSUER_PALETTE[i%len(ISSUER_PALETTE)]),width=1.6),
                 hovertemplate=f"{d}: %{{y:,.0f}}<extra></extra>"))
         fts.add_hline(y=0,line_color=BORD2,line_width=1)
-        apply_dark(fts,height=340,title=dict(text=f"{rsel} — Daily Positions",font=dict(size=11,color=TEXT2)))
+        apply_dark(fts,height=340,title=dict(text=f"{rsel} — Daily Positions",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fts, use_container_width=True)
 
         sh("All Risk Types · Latest Day")
@@ -822,7 +822,7 @@ with tab4:
             hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
         ))
         apply_dark(fa,height=300,title=dict(text=f"Total Risk by Type — {latest_d.strftime('%d %b %Y')}",
-                   font=dict(size=11,color=TEXT2)))
+                   font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fa, use_container_width=True)
 
 # ══════════════════════════════════════════════
@@ -871,7 +871,7 @@ with tab5:
                 marker_color=PERIOD_COLORS.get(p,"#606070"),
                 hovertemplate=f"{p}: %{{y:,.0f}}<extra></extra>"))
         apply_dark(fb,barmode="group",height=340,
-                   title=dict(text="MTD / YTD / LTD by Instrument",font=dict(size=11,color=TEXT2)))
+                   title=dict(text="MTD / YTD / LTD by Instrument",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fb, use_container_width=True)
 
         sh("Period Evolution Over Time")
@@ -889,7 +889,7 @@ with tab5:
                           width=2.2 if inst=="Total" else 1.4),
                 hovertemplate=f"{inst}: %{{y:,.0f}}<extra></extra>"))
         fe.add_hline(y=0,line_color=BORD2,line_width=1)
-        apply_dark(fe,height=340,title=dict(text=f"{pts} — Daily Evolution",font=dict(size=11,color=TEXT2)))
+        apply_dark(fe,height=340,title=dict(text=f"{pts} — Daily Evolution",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fe, use_container_width=True)
 
         sh("All Periods · Single Instrument")
@@ -904,7 +904,7 @@ with tab5:
                 line=dict(color=PERIOD_COLORS.get(p,"#606070"),width=1.6),
                 hovertemplate=f"{p}: %{{y:,.0f}}<extra></extra>"))
         fg.add_hline(y=0,line_color=BORD2,line_width=1)
-        apply_dark(fg,height=300,title=dict(text=f"MTD / YTD / LTD — {si}",font=dict(size=11,color=TEXT2)))
+        apply_dark(fg,height=300,title=dict(text=f"MTD / YTD / LTD — {si}",font=dict(size=11,color=TEXT0)))
         st.plotly_chart(fg, use_container_width=True)
 
 # ══════════════════════════════════════════════
