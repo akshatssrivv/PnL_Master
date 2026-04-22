@@ -47,9 +47,9 @@ section[data-testid="stSidebar"] .stSelectbox label,
 section[data-testid="stSidebar"] .stMultiSelect label,
 section[data-testid="stSidebar"] .stDateInput label,
 section[data-testid="stSidebar"] .stSlider label {
-    color: #83cceb;
+    color: #ffffff;           /* white */
     font-size: 0.7rem;
-    font-weight: 600;
+    font-weight: 700;         /* bold */
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-family: 'IBM Plex Mono', monospace;
