@@ -22,14 +22,14 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --bg:       #0b0e13;
-    --surface:  #111620;
-    --border:   #1e2535;
-    --accent:   #00d4a0;
-    --accent2:  #4f8cff;
-    --warn:     #ff6b6b;
-    --text:     #e2e8f0;
-    --muted:    #64748b;
+    --bg:       #0d1117;
+    --surface:  #161d2e;
+    --border:   #253352;
+    --accent:   #7eb8f7;
+    --accent2:  #a8c8fa;
+    --warn:     #e07070;
+    --text:     #e8edf5;
+    --muted:    #6b7fa3;
 }
 
 html, body, [class*="css"] {
@@ -132,32 +132,51 @@ div[data-testid="stHorizontalBlock"] > div { gap: 1rem; }
 # CONSTANTS
 # ─────────────────────────────────────────────
 PLOT_LAYOUT = dict(
-    paper_bgcolor="#111620", plot_bgcolor="#111620",
+    paper_bgcolor="#161d2e", plot_bgcolor="#161d2e",
     font=dict(family="IBM Plex Mono, monospace", color="#e2e8f0", size=11),
     xaxis=dict(gridcolor="#1e2535", linecolor="#1e2535", zerolinecolor="#1e2535"),
     yaxis=dict(gridcolor="#1e2535", linecolor="#1e2535", zerolinecolor="#1e2535"),
-    legend=dict(bgcolor="#111620", bordercolor="#1e2535", borderwidth=1),
+    legend=dict(bgcolor="#161d2e", bordercolor="#1e2535", borderwidth=1),
     margin=dict(l=40, r=20, t=40, b=40),
     hovermode="x unified",
 )
 TABLE_LAYOUT = dict(
-    paper_bgcolor="#111620", plot_bgcolor="#111620",
+    paper_bgcolor="#161d2e", plot_bgcolor="#161d2e",
     font=dict(family="IBM Plex Mono, monospace", color="#e2e8f0", size=11),
     margin=dict(l=0, r=0, t=0, b=0),
 )
 
 COLORS = {
-    "Total": "#e2e8f0", "Rates": "#4f8cff", "Credit": "#00d4a0",
-    "Inflation": "#f59e0b", "SwapSpread": "#a78bfa", "Carry": "#34d399",
-    "FX": "#fb923c", "Residual": "#64748b", "ForwardSwap": "#e879f9",
-    "NewBusiness": "#38bdf8", "RatesParallel": "#93c5fd",
-    "RatesCurve": "#6366f1", "RatesSlope": "#8b5cf6", "RatesFly": "#c084fc",
+    "Total":        "#e8edf5",
+    "Rates":        "#7eb8f7",
+    "Credit":       "#a8d8b0",
+    "Inflation":    "#f0c97a",
+    "SwapSpread":   "#b8a8e8",
+    "Carry":        "#7ecfb8",
+    "FX":           "#f0a878",
+    "Residual":     "#6b7fa3",
+    "ForwardSwap":  "#d8a8e0",
+    "NewBusiness":  "#88c8e8",
+    "RatesParallel":"#a8c8fa",
+    "RatesCurve":   "#7888d8",
+    "RatesSlope":   "#9878c8",
+    "RatesFly":     "#b898d8",
 }
-CCY_COLORS    = {"Total": "#e2e8f0", "EUR": "#4f8cff", "GBP": "#00d4a0", "USD": "#fb923c"}
-ISSUER_COLORS = px.colors.qualitative.Vivid
-RISK_COLORS   = {"RatesRisk": "#4f8cff", "BetaRatesRisk": "#93c5fd",
-                 "SwapSpreadRisk": "#a78bfa", "InflationRisk": "#f59e0b",
-                 "FXBalance": "#fb923c", "CreditRisk": "#00d4a0", "BetaCreditRisk": "#34d399"}
+CCY_COLORS  = {"Total": "#e8edf5", "EUR": "#7eb8f7", "GBP": "#a8d8b0", "USD": "#f0a878"}
+RISK_COLORS = {
+    "RatesRisk":     "#7eb8f7",
+    "BetaRatesRisk": "#a8c8fa",
+    "SwapSpreadRisk":"#b8a8e8",
+    "InflationRisk": "#f0c97a",
+    "FXBalance":     "#f0a878",
+    "CreditRisk":    "#a8d8b0",
+    "BetaCreditRisk":"#7ecfb8",
+}
+ISSUER_COLORS = [
+    "#7eb8f7","#a8d8b0","#f0c97a","#b8a8e8","#f0a878",
+    "#7ecfb8","#d8a8e0","#88c8e8","#a8c8fa","#e8a8a8",
+    "#c8d898","#a8b8e8","#e8c8a8",
+]
 
 TENORS   = ["2Y", "5Y", "10Y", "20Y", "30Y"]
 CCYS     = ["EUR", "GBP", "USD"]
@@ -253,9 +272,10 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("##### FILTERS")
 
-    min_d = pnl_df["Date"].min().date() if not pnl_df.empty else pd.Timestamp("2024-01-01").date()
-    max_d = pnl_df["Date"].max().date() if not pnl_df.empty else pd.Timestamp("today").date()
-    date_range = st.date_input("Date Range", value=(min_d, max_d), min_value=min_d, max_value=max_d)
+    min_d     = pnl_df["Date"].min().date() if not pnl_df.empty else pd.Timestamp("2025-02-13").date()
+    max_d     = pnl_df["Date"].max().date() if not pnl_df.empty else pd.Timestamp("today").date()
+    default_start = max(min_d, pd.Timestamp("2025-02-13").date())
+    date_range = st.date_input("Date Range", value=(default_start, max_d), min_value=min_d, max_value=max_d)
     if len(date_range) == 2:
         d_start, d_end = pd.Timestamp(date_range[0]), pd.Timestamp(date_range[1])
     else:
@@ -479,7 +499,7 @@ with tab2:
                .pivot(index="PnL Type", columns="Currency", values="Value").fillna(0))
     fig5 = go.Figure(go.Heatmap(
         z=heat_df.values, x=heat_df.columns.tolist(), y=heat_df.index.tolist(),
-        colorscale=[[0,"#ff6b6b"],[0.5,"#1e2535"],[1,"#00d4a0"]], zmid=0,
+        colorscale=[[0,"#ff6b6b"],[0.5,"#253352"],[1,"#00d4a0"]], zmid=0,
         text=[[f"{v:,.0f}" for v in row] for row in heat_df.values],
         texttemplate="%{text}", textfont=dict(family="IBM Plex Mono", size=10),
         hovertemplate="Type: %{y}<br>CCY: %{x}<br>PnL: %{z:,.0f}<extra></extra>",
@@ -530,7 +550,7 @@ with tab3:
                 .pivot(index="Issuer", columns="Metric", values="Value").fillna(0))
     fig8 = go.Figure(go.Heatmap(
         z=all_heat.values, x=all_heat.columns.tolist(), y=all_heat.index.tolist(),
-        colorscale=[[0,"#ff6b6b"],[0.5,"#111620"],[1,"#00d4a0"]], zmid=0,
+        colorscale=[[0,"#ff6b6b"],[0.5,"#253352"],[1,"#00d4a0"]], zmid=0,
         text=[[f"{v:,.0f}" for v in row] for row in all_heat.values],
         texttemplate="%{text}", textfont=dict(family="IBM Plex Mono", size=10),
         hovertemplate="Issuer: %{y}<br>Metric: %{x}<br>Value: %{z:,.0f}<extra></extra>",
@@ -600,7 +620,7 @@ with tab4:
                 z=matrix_df[col_order].values,
                 x=col_order,
                 y=matrix_df.index.tolist(),
-                colorscale=[[0,"#ff6b6b"],[0.5,"#1e2535"],[1,"#00d4a0"]], zmid=0,
+                colorscale=[[0,"#ff6b6b"],[0.5,"#253352"],[1,"#00d4a0"]], zmid=0,
                 text=[[f"{v:,.0f}" for v in row] for row in matrix_df[col_order].values],
                 texttemplate="%{text}", textfont=dict(family="IBM Plex Mono", size=11),
                 hovertemplate="Tenor: %{y}<br>CCY: %{x}<br>Value: %{z:,.0f}<extra></extra>",
