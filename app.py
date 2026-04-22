@@ -27,7 +27,7 @@ st.markdown("""
     --border:   #2300B8;   /* slightly blue-tinted border */
 
     --accent:   #ffffff;   /* header green */
-    --accent2:  #ffffff;
+    --accent2:  #000026;
 
     --warn:     #c85c5c;   /* red */
     --text:     #ffffff;   /* white */
