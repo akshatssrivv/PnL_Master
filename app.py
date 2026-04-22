@@ -31,7 +31,7 @@ st.markdown("""
 
     --warn:     #c85c5c;   /* red */
     --text:     #ffffff;   /* dark grey text */
-    --muted:    #6f809c;
+    --muted:    #ffffff;
 }
 
 html, body, [class*="css"] {
@@ -79,8 +79,8 @@ div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
 }
 .section-header {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 800;
     letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--accent);
@@ -99,7 +99,7 @@ div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
 .dash-subtitle {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.65rem;
-    color: var(--muted);
+    color: var(--accent);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-top: 0.1rem;
