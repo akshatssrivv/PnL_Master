@@ -22,7 +22,7 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --bg:       #ffffff;   /* soft blue-grey background (THIS is your image vibe) */
+    --bg:       #000026;   /* soft blue-grey background (THIS is your image vibe) */
     --surface:  #000026;   /* table/cards stay white */
     --border:   #ffffff;   /* slightly blue-tinted border */
 
