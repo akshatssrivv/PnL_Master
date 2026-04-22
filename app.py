@@ -26,11 +26,11 @@ st.markdown("""
     --surface:  #00008A;   /* table/cards stay white */
     --border:   #cfd8e6;   /* slightly blue-tinted border */
 
-    --accent:   #8fb9a8;   /* header green */
-    --accent2:  #c7dcd3;
+    --accent:   #ffffff;   /* header green */
+    --accent2:  #ffffff;
 
     --warn:     #c85c5c;   /* red */
-    --text:     #ffffff;   /* dark grey text */
+    --text:     #ffffff;   /* white */
     --muted:    #ffffff;
 }
 
