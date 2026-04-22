@@ -278,7 +278,7 @@ PLOT_LAYOUT = dict(
     yaxis=dict(
         gridcolor=GRID, linecolor=BORD2, zerolinecolor=BORD2,
         tickfont=dict(color=TEXT2, size=9), ticklen=0,
-        showgrid=True, zeroline=True, zerolinewidth=1, zerolinecolor=BORD2,
+        showgrid=True, zeroline=True, zerolinewidth=1,
     ),
     legend=dict(
         bgcolor="rgba(15,15,23,0.9)",
