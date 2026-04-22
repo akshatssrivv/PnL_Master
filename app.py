@@ -99,7 +99,7 @@ div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
 .dash-subtitle {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.65rem;
-    color: var(--accent);
+    color: #ffffff;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     margin-top: 0.1rem;
