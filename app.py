@@ -154,18 +154,18 @@ div[data-testid="stHorizontalBlock"] > div { gap: 1rem; }
 
 # Charts: white background, black text
 PLOT_LAYOUT = dict(
-    paper_bgcolor="#ffffff",
-    plot_bgcolor="#ffffff",
+    paper_bgcolor="#83cceb",
+    plot_bgcolor="#83cceb",
     font=dict(family="IBM Plex Mono, monospace", color="#000000", size=11),
-    xaxis=dict(gridcolor="#d0d0d8", linecolor="#d0d0d8", zerolinecolor="#d0d0d8", tickfont=dict(color="#000000")),
-    yaxis=dict(gridcolor="#d0d0d8", linecolor="#d0d0d8", zerolinecolor="#d0d0d8", tickfont=dict(color="#000000")),
-    legend=dict(bgcolor="#ffffff", bordercolor="#d0d0d8", borderwidth=1, font=dict(color="#000000")),
+    xaxis=dict(gridcolor="#5aaac8", linecolor="#5aaac8", zerolinecolor="#5aaac8", tickfont=dict(color="#000000")),
+    yaxis=dict(gridcolor="#5aaac8", linecolor="#5aaac8", zerolinecolor="#5aaac8", tickfont=dict(color="#000000")),
+    legend=dict(bgcolor="#83cceb", bordercolor="#5aaac8", borderwidth=1, font=dict(color="#000000")),    
     margin=dict(l=40, r=20, t=40, b=40),
     hovermode="x unified",
 )
 TABLE_LAYOUT = dict(
-    paper_bgcolor="#ffffff",
-    plot_bgcolor="#ffffff",
+    paper_bgcolor="#83cceb",
+    plot_bgcolor="#83cceb",
     font=dict(family="IBM Plex Mono, monospace", color="#000000", size=11),
     margin=dict(l=0, r=0, t=0, b=0),
 )
@@ -477,7 +477,7 @@ with tab1:
                                   line=dict(color=COLORS.get(pt,"#606070"),
                                             width=2.5 if pt=="Total" else 1.2),
                                   mode="lines", hovertemplate=f"{pt}: %{{y:,.0f}}<extra></extra>"))
-    fig2.add_hline(y=0, line_color="#d0d0d8", line_width=1)
+    fig2.add_hline(y=0, line_color="#3a8aaa", line_width=1)
     fig2.update_layout(**PLOT_LAYOUT, height=320, title="Cumulative PnL by Type",
                        title_font=dict(size=11, color="#606070"))
     st.plotly_chart(fig2, use_container_width=True)
