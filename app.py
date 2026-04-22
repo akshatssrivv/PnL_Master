@@ -22,14 +22,14 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
 
 :root {
-    --bg:       #0d1117;
-    --surface:  #161d2e;
-    --border:   #253352;
-    --accent:   #7eb8f7;
-    --accent2:  #a8c8fa;
-    --warn:     #e07070;
-    --text:     #e8edf5;
-    --muted:    #6b7fa3;
+    --bg:       #0f1520;
+    --surface:  #151e2d;
+    --border:   #1e2d45;
+    --accent:   #7eb8a0;
+    --accent2:  #a8c4b8;
+    --warn:     #c87070;
+    --text:     #f0f2f5;
+    --muted:    #8a9bb8;
 }
 
 html, body, [class*="css"] {
@@ -45,7 +45,7 @@ section[data-testid="stSidebar"] .stSelectbox label,
 section[data-testid="stSidebar"] .stMultiSelect label,
 section[data-testid="stSidebar"] .stDateInput label,
 section[data-testid="stSidebar"] .stSlider label {
-    color: var(--muted);
+    color: #f0f2f5;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -132,50 +132,51 @@ div[data-testid="stHorizontalBlock"] > div { gap: 1rem; }
 # CONSTANTS
 # ─────────────────────────────────────────────
 PLOT_LAYOUT = dict(
-    paper_bgcolor="#161d2e", plot_bgcolor="#161d2e",
-    font=dict(family="IBM Plex Mono, monospace", color="#e2e8f0", size=11),
-    xaxis=dict(gridcolor="#1e2535", linecolor="#1e2535", zerolinecolor="#1e2535"),
-    yaxis=dict(gridcolor="#1e2535", linecolor="#1e2535", zerolinecolor="#1e2535"),
-    legend=dict(bgcolor="#161d2e", bordercolor="#1e2535", borderwidth=1),
+    paper_bgcolor="#151e2d",
+    plot_bgcolor="#151e2d",
+    font=dict(family="IBM Plex Mono, monospace", color="#f0f2f5", size=11),
+    xaxis=dict(gridcolor="#1e2d45", linecolor="#1e2d45", zerolinecolor="#1e2d45"),
+    yaxis=dict(gridcolor="#1e2d45", linecolor="#1e2d45", zerolinecolor="#1e2d45"),
+    legend=dict(bgcolor="#151e2d", bordercolor="#1e2d45", borderwidth=1),
     margin=dict(l=40, r=20, t=40, b=40),
     hovermode="x unified",
 )
 TABLE_LAYOUT = dict(
-    paper_bgcolor="#161d2e", plot_bgcolor="#161d2e",
-    font=dict(family="IBM Plex Mono, monospace", color="#e2e8f0", size=11),
+    paper_bgcolor="#151e2d", plot_bgcolor="#151e2d",
+    font=dict(family="IBM Plex Mono, monospace", color="#f0f2f5", size=11),
     margin=dict(l=0, r=0, t=0, b=0),
 )
 
 COLORS = {
-    "Total":        "#e8edf5",
-    "Rates":        "#7eb8f7",
-    "Credit":       "#a8d8b0",
-    "Inflation":    "#f0c97a",
-    "SwapSpread":   "#b8a8e8",
-    "Carry":        "#7ecfb8",
-    "FX":           "#f0a878",
-    "Residual":     "#6b7fa3",
-    "ForwardSwap":  "#d8a8e0",
-    "NewBusiness":  "#88c8e8",
-    "RatesParallel":"#a8c8fa",
-    "RatesCurve":   "#7888d8",
-    "RatesSlope":   "#9878c8",
-    "RatesFly":     "#b898d8",
+    "Total":        "#f0f2f5",
+    "Rates":        "#7eb8a0",
+    "Credit":       "#c8a878",
+    "Inflation":    "#a8b8d8",
+    "SwapSpread":   "#b8a090",
+    "Carry":        "#90b8a8",
+    "FX":           "#c89878",
+    "Residual":     "#6878a0",
+    "ForwardSwap":  "#a898b8",
+    "NewBusiness":  "#88a8c8",
+    "RatesParallel":"#98c8b0",
+    "RatesCurve":   "#7898b8",
+    "RatesSlope":   "#88a898",
+    "RatesFly":     "#a8b8a0",
 }
-CCY_COLORS  = {"Total": "#e8edf5", "EUR": "#7eb8f7", "GBP": "#a8d8b0", "USD": "#f0a878"}
+CCY_COLORS  = {"Total": "#f0f2f5", "EUR": "#7eb8a0", "GBP": "#a8b8d8", "USD": "#c8a878"}
 RISK_COLORS = {
-    "RatesRisk":     "#7eb8f7",
-    "BetaRatesRisk": "#a8c8fa",
-    "SwapSpreadRisk":"#b8a8e8",
-    "InflationRisk": "#f0c97a",
-    "FXBalance":     "#f0a878",
-    "CreditRisk":    "#a8d8b0",
-    "BetaCreditRisk":"#7ecfb8",
+    "RatesRisk":     "#7eb8a0",
+    "BetaRatesRisk": "#98c8b0",
+    "SwapSpreadRisk":"#b8a090",
+    "InflationRisk": "#a8b8d8",
+    "FXBalance":     "#c8a878",
+    "CreditRisk":    "#90b8a8",
+    "BetaCreditRisk":"#88a898",
 }
 ISSUER_COLORS = [
-    "#7eb8f7","#a8d8b0","#f0c97a","#b8a8e8","#f0a878",
-    "#7ecfb8","#d8a8e0","#88c8e8","#a8c8fa","#e8a8a8",
-    "#c8d898","#a8b8e8","#e8c8a8",
+    "#7eb8a0","#c8a878","#a8b8d8","#b8a090","#90b8a8",
+    "#c89878","#a898b8","#88a8c8","#98c8b0","#c8a8a0",
+    "#a8c8b0","#b8a8c8","#c8b898",
 ]
 
 TENORS   = ["2Y", "5Y", "10Y", "20Y", "30Y"]
@@ -366,20 +367,20 @@ def pnl_summary_table(summary):
         elif val < 0:
             r = int(120 + 135 * min(abs(val)/mx, 1.0))
             return f"rgba({r},40,40,0.35)"
-        return "rgba(30,37,53,0.5)"
+        return "rgba(30,45,69,0.5)"
 
     row_colors = [[_color(v) for v in summary["Total PnL"]]]
-    neutral    = [["rgba(17,22,32,0.0)"] * len(summary)] * (len(summary.columns) - 1)
+    neutral    = [["rgba(21,30,45,0.0)"] * len(summary)] * (len(summary.columns) - 1)
     fig = go.Figure(go.Table(
         header=dict(values=["<b>Type</b>"] + [f"<b>{c}</b>" for c in summary.columns],
                     fill_color="#1e2535", font=dict(family="IBM Plex Mono", color="#e2e8f0", size=10),
                     align="right", line_color="#0b0e13", height=28),
         cells=dict(
             values=[summary.index.tolist()] + [[f"{v:,.0f}" for v in summary[c]] for c in summary.columns],
-            fill_color=[["rgba(17,22,32,0.6)"] * len(summary)] + row_colors + neutral,
+            fill_color=[["rgba(21,30,45,0.6)"] * len(summary)] + row_colors + neutral,
             font=dict(family="IBM Plex Mono", color="#e2e8f0", size=10),
             align=["left"] + ["right"] * len(summary.columns),
-            line_color="#0b0e13", height=24,
+            line_color="#0f1520", height=24,
         ),
     ))
     fig.update_layout(**TABLE_LAYOUT, height=80 + len(summary) * 26)
@@ -499,7 +500,7 @@ with tab2:
                .pivot(index="PnL Type", columns="Currency", values="Value").fillna(0))
     fig5 = go.Figure(go.Heatmap(
         z=heat_df.values, x=heat_df.columns.tolist(), y=heat_df.index.tolist(),
-        colorscale=[[0,"#ff6b6b"],[0.5,"#253352"],[1,"#00d4a0"]], zmid=0,
+        colorscale=[[0,"#ff6b6b"],[0.5,"#111620"],[1,"#00d4a0"]], zmid=0,
         text=[[f"{v:,.0f}" for v in row] for row in heat_df.values],
         texttemplate="%{text}", textfont=dict(family="IBM Plex Mono", size=10),
         hovertemplate="Type: %{y}<br>CCY: %{x}<br>PnL: %{z:,.0f}<extra></extra>",
@@ -550,7 +551,7 @@ with tab3:
                 .pivot(index="Issuer", columns="Metric", values="Value").fillna(0))
     fig8 = go.Figure(go.Heatmap(
         z=all_heat.values, x=all_heat.columns.tolist(), y=all_heat.index.tolist(),
-        colorscale=[[0,"#ff6b6b"],[0.5,"#253352"],[1,"#00d4a0"]], zmid=0,
+        colorscale=[[0,"#ff6b6b"],[0.5,"#111620"],[1,"#00d4a0"]], zmid=0,
         text=[[f"{v:,.0f}" for v in row] for row in all_heat.values],
         texttemplate="%{text}", textfont=dict(family="IBM Plex Mono", size=10),
         hovertemplate="Issuer: %{y}<br>Metric: %{x}<br>Value: %{z:,.0f}<extra></extra>",
@@ -620,7 +621,7 @@ with tab4:
                 z=matrix_df[col_order].values,
                 x=col_order,
                 y=matrix_df.index.tolist(),
-                colorscale=[[0,"#ff6b6b"],[0.5,"#253352"],[1,"#00d4a0"]], zmid=0,
+                colorscale=[[0,"#ff6b6b"],[0.5,"#111620"],[1,"#00d4a0"]], zmid=0,
                 text=[[f"{v:,.0f}" for v in row] for row in matrix_df[col_order].values],
                 texttemplate="%{text}", textfont=dict(family="IBM Plex Mono", size=11),
                 hovertemplate="Tenor: %{y}<br>CCY: %{x}<br>Value: %{z:,.0f}<extra></extra>",
@@ -742,7 +743,7 @@ with tab5:
 
         fig_snap = go.Figure(go.Table(
             header=dict(values=["<b>Instrument</b>"] + [f"<b>{c}</b>" for c in col_order_p],
-                        fill_color="#1e2535", font=dict(family="IBM Plex Mono", color="#e2e8f0", size=10),
+                        fill_color="#1e2d45", font=dict(family="IBM Plex Mono", color="#e2e8f0", size=10),
                         align="right", line_color="#0b0e13", height=28),
             cells=dict(
                 values=[snap.index.tolist()] + [[f"{v:,.0f}" for v in snap[c]] for c in col_order_p],
