@@ -658,26 +658,28 @@ with tab1:
 
     sh("Drill Down")
     if not daily_pivot.empty:
-        ISSUER_TYPES  = {"Credit", "Residual"}
+        ISSUER_TYPES = {"Credit", "Residual", "Credit + Residual"}
         TENOR_TYPES   = {"Rates", "BetaRates", "RatesParallel", "RatesCurve",
                          "RatesSlope", "RatesFly", "SwapSpread", "Inflation",
                          "ForwardSwap"}
         CCY_TYPES     = {"Carry", "FX", "NewBusiness"}
 
         drillable = [t for t in selected_types if t != "Total"]
+        if "Credit" in drillable and "Residual" in drillable:
+            drillable.append("Credit + Residual")
         drill_type = st.selectbox("Drill into →", drillable, key="attr_drill")
 
         # ── route ──────────────────────────────────────────────────────────
         if drill_type in ISSUER_TYPES:
             # map drill type to issuer metric
-            metric_map = {"Credit": "CreditPnL", "Residual": "Residual"}
-            metric = metric_map.get(drill_type, "CreditPnL")
-            iss_drill = (
-                fiss[fiss["Metric"] == metric]
-                .groupby("Issuer")["Value"].sum()
-                .sort_values()
-                .reset_index()
-            )
+            metric_map = {"Credit": ["CreditPnL"], "Residual": ["Residual"], "Credit + Residual": ["CreditPnL", "Residual"]}
+                metric = metric_map.get(drill_type, ["CreditPnL"])
+                iss_drill = (
+                    fiss[fiss["Metric"].isin(metric)]
+                    .groupby("Issuer")["Value"].sum()
+                    .sort_values()
+                    .reset_index()
+                )
             if iss_drill.empty:
                 st.info("No issuer data for this type in the selected range.")
             else:
