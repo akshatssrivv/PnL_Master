@@ -946,7 +946,7 @@ with tab4:
  
         # ── All risk types · latest day ───────────────────────────────────────
         sh("All Risk Types · Latest Day")
-        atl = frisk[(frisk["Date"] == latest_d) & (frisk["Dimension"] == "Total")]
+        atl = frisk[(frisk["Date"] == latest_d) & (frisk["Dimension"] == "Total") & (frisk["Risk Type"] != "FXBalance")]
         att = atl.groupby("Risk Type")["Value"].sum().sort_values(ascending=True).reset_index()
         fa  = go.Figure(go.Bar(
             x=att["Value"], y=att["Risk Type"], orientation="h",
