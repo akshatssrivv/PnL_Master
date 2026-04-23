@@ -623,6 +623,47 @@ with tab1:
         }).round(0).sort_values("Total PnL", ascending=False)
         st.plotly_chart(summary_table(summary), use_container_width=True)
 
+
+    sh("PnL Attribution · Period")
+    if not daily_pivot.empty:
+        contrib = daily_pivot.drop(columns=["Total"], errors="ignore").sum().sort_values()
+        total = daily_pivot["Total"].sum() if "Total" in daily_pivot.columns else contrib.sum()
+        
+        # waterfall
+        measure = ["relative"] * len(contrib) + ["total"]
+        x = contrib.index.tolist() + ["Total"]
+        y = contrib.tolist() + [total]
+        
+        fw = go.Figure(go.Waterfall(
+            orientation="v",
+            measure=measure,
+            x=x,
+            y=y,
+            connector=dict(line=dict(color=BORD2, width=1)),
+            increasing=dict(marker_color=GREEN),
+            decreasing=dict(marker_color=RED),
+            totals=dict(marker_color=ACCENT),
+            texttemplate="%{y:,.0f}",
+            textposition="outside",
+            textfont=dict(family="Space Mono", size=8, color=TEXT2),
+            hovertemplate="%{x}: %{y:,.0f}<extra></extra>",
+        ))
+        apply_dark(fw, height=360, title=dict(text="What drove PnL · Period waterfall", font=dict(size=11, color=TEXT0)))
+        st.plotly_chart(fw, use_container_width=True)
+    
+        # % share bar — cleaner for "how much of total"
+        pct = (contrib / abs(total) * 100).sort_values()
+        fp = go.Figure(go.Bar(
+            x=pct.index, y=pct.values,
+            marker_color=[GREEN if v >= 0 else RED for v in pct.values],
+            text=[f"{v:+.1f}%" for v in pct.values],
+            textposition="outside",
+            textfont=dict(family="Space Mono", size=8, color=TEXT2),
+            hovertemplate="%{x}: %{y:+.1f}%<extra></extra>",
+        ))
+        apply_dark(fp, height=300, title=dict(text="% share of total PnL by type", font=dict(size=11, color=TEXT0)))
+        st.plotly_chart(fp, use_container_width=True)
+
 # ══════════════════════════════════════════════
 # TAB 2
 # ══════════════════════════════════════════════
