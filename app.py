@@ -804,55 +804,69 @@ with tab4:
         sh(f"{rsel} Over Time")
  
         if is_tc:
-            # Pull every dimension present in filtered data
-            all_dims_in_data = sorted(rdata["Dimension"].unique().tolist())
- 
-            # Bucket into three groups
-            cross_dims = sorted([
-                d for d in all_dims_in_data
-                if "_" in d
-                and d.split("_")[0] in TENORS
-                and d.split("_")[1] in CCYS
-            ])  # e.g. 5Y_EUR, 10Y_GBP
-            tenor_dims = [d for d in all_dims_in_data if d in TENORS]
-            ccy_dims   = [d for d in all_dims_in_data if d in CCYS or d == "Total"]
- 
+            # ── Checkbox matrix: rows = tenors, cols = CCY + "All CCY" total ──
             st.markdown(
                 '<div style="font-family:var(--mono);font-size:0.6rem;color:var(--text2);'
-                'letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem">'
-                'Pick dimensions — mix tenor×ccy crosses, tenor totals, or ccy totals'
+                'letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem">'
+                'Select tenor × currency — tick cells to plot, tick a whole row/col with the toggles'
                 '</div>',
                 unsafe_allow_html=True,
             )
  
-            col_r1, col_r2, col_r3 = st.columns(3)
-            with col_r1:
-                sel_cross = st.multiselect(
-                    "Tenor × CCY crosses",
-                    cross_dims,
-                    default=[],
-                    key="rdims_cross",
-                    placeholder="e.g. 5Y_EUR, 10Y_GBP …",
-                )
-            with col_r2:
-                # Default to first 2 tenors only when no crosses selected
-                default_tenors = tenor_dims[:2] if not sel_cross else []
-                sel_tenor = st.multiselect(
-                    "Tenor totals (all CCY)",
-                    tenor_dims,
-                    default=default_tenors,
-                    key="rdims_tenor",
-                )
-            with col_r3:
-                default_ccy = ["Total"] if (not sel_cross and not sel_tenor) else []
-                sel_ccy = st.multiselect(
-                    "CCY / aggregate totals",
-                    ccy_dims,
-                    default=default_ccy,
-                    key="rdims_ccy",
-                )
+            avail_dims = set(rdata["Dimension"].unique())
  
-            dims = sel_cross + sel_tenor + sel_ccy
+            # Build the checkbox matrix dataframe
+            # Columns: EUR, GBP, USD, ∑ all CCY (= tenor total)
+            matrix_cols = CCYS + ["∑ all CCY"]
+            matrix_data = {}
+            for c in matrix_cols:
+                col_vals = []
+                for t in TENORS:
+                    if c == "∑ all CCY":
+                        col_vals.append(t in avail_dims)
+                    else:
+                        col_vals.append(f"{t}_{c}" in avail_dims)
+                matrix_data[c] = col_vals
+ 
+            matrix_df = pd.DataFrame(matrix_data, index=TENORS)
+            # Default: nothing ticked — let user choose
+            default_matrix = pd.DataFrame(
+                {c: [False]*len(TENORS) for c in matrix_cols},
+                index=TENORS,
+            )
+            # Use data_editor as interactive checkbox grid
+            edited = st.data_editor(
+                default_matrix,
+                key="risk_matrix",
+                use_container_width=True,
+                column_config={
+                    c: st.column_config.CheckboxColumn(c, default=False)
+                    for c in matrix_cols
+                },
+            )
+ 
+            # Translate ticked cells → dim keys
+            dims = []
+            for t in TENORS:
+                for c in CCYS:
+                    if edited.at[t, c]:
+                        k = f"{t}_{c}"
+                        if k in avail_dims:
+                            dims.append(k)
+                if edited.at[t, "∑ all CCY"]:
+                    if t in avail_dims:
+                        dims.append(t)
+ 
+            # Fallback: add aggregate CCY/Total multiselect below
+            agg_opts = [d for d in ["Total"] + CCYS if d in avail_dims]
+            sel_agg = st.multiselect(
+                "Also add CCY / grand total lines",
+                agg_opts,
+                default=[],
+                key="rdims_agg",
+                placeholder="EUR total, GBP total, Grand Total …",
+            )
+            dims = dims + [d for d in sel_agg if d not in dims]
             if not dims:
                 dims = ["Total"]
  
@@ -946,6 +960,7 @@ with tab4:
                    title=dict(text=f"Total Risk by Type — {latest_d.strftime('%d %b %Y')}",
                               font=dict(size=11, color=TEXT0)))
         st.plotly_chart(fa, use_container_width=True)
+ 
 # ══════════════════════════════════════════════
 # TAB 5
 # ══════════════════════════════════════════════
