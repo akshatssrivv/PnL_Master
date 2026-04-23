@@ -673,8 +673,8 @@ with tab1:
         if drill_type in ISSUER_TYPES:
             # map drill type to issuer metric
             metric_map = {"Credit": ["CreditPnL"], "Residual": ["Residual"], "Credit + Residual": ["CreditPnL", "Residual"]}
-                metric = metric_map.get(drill_type, ["CreditPnL"])
-                iss_drill = (
+            metric = metric_map.get(drill_type, ["CreditPnL"])
+            iss_drill = (
                     fiss[fiss["Metric"].isin(metric)]
                     .groupby("Issuer")["Value"].sum()
                     .sort_values()
