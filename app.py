@@ -615,12 +615,12 @@ with tab1:
     apply_dark(fig2, height=300, title=dict(text="Cumulative PnL by Type", font=dict(size=11,color=TEXT0)))
     st.plotly_chart(fig2, use_container_width=True)
     sh("Period Summary")
-        if not daily_pivot.empty:
-            summary = pd.DataFrame({
-                "Total PnL":daily_pivot.sum(), "Daily Avg":daily_pivot.mean(),
-                "Std Dev":daily_pivot.std(), "Best Day":daily_pivot.max(), "Worst Day":daily_pivot.min(),
-            }).round(0).sort_values("Total PnL", ascending=False)
-            st.plotly_chart(summary_table(summary), use_container_width=True)
+    if not daily_pivot.empty:
+        summary = pd.DataFrame({
+            "Total PnL":daily_pivot.sum(), "Daily Avg":daily_pivot.mean(),
+            "Std Dev":daily_pivot.std(), "Best Day":daily_pivot.max(), "Worst Day":daily_pivot.min(),
+        }).round(0).sort_values("Total PnL", ascending=False)
+        st.plotly_chart(summary_table(summary), use_container_width=True)
 
     sh("PnL Attribution · Period")
     if not daily_pivot.empty:
