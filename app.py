@@ -742,89 +742,210 @@ with tab4:
     if frisk.empty:
         st.info("No risk data available.")
     else:
-        rsel = st.selectbox("Risk Type", TENOR_CCY_RISK+ISSUER_RISK+["FXBalance"], key="rsel")
-        latest_d  = frisk["Date"].max()
-        is_tc     = rsel in TENOR_CCY_RISK
-        is_iss    = rsel in ISSUER_RISK
-        rdata     = frisk[frisk["Risk Type"]==rsel]
-
+        rsel = st.selectbox("Risk Type", TENOR_CCY_RISK + ISSUER_RISK + ["FXBalance"], key="rsel")
+        latest_d = frisk["Date"].max()
+        is_tc    = rsel in TENOR_CCY_RISK
+        is_iss   = rsel in ISSUER_RISK
+        rdata    = frisk[frisk["Risk Type"] == rsel]
+ 
+        # ── Tenor × CCY heat-map (latest day) ────────────────────────────────
         if is_tc:
             sh(f"Tenor × CCY Matrix · {rsel} · {latest_d.strftime('%d %b %Y')}")
-            lat  = rdata[rdata["Date"]==latest_d]
-            mrows= []
+            lat  = rdata[rdata["Date"] == latest_d]
+            mrows = []
             for t in TENORS:
-                row = {"Tenor":t}
-                for c in ["Total"]+CCYS:
-                    k = f"{t}_{c}" if c!="Total" else t
-                    vr = lat[lat["Dimension"]==k]["Value"]
+                row = {"Tenor": t}
+                for c in ["Total"] + CCYS:
+                    k  = f"{t}_{c}" if c != "Total" else t
+                    vr = lat[lat["Dimension"] == k]["Value"]
                     row[c] = vr.values[0] if not vr.empty else 0
                 mrows.append(row)
-            tr = {"Tenor":"Total"}
-            for c in ["Total"]+CCYS:
-                vr = lat[lat["Dimension"]==c]["Value"]
+            tr = {"Tenor": "Total"}
+            for c in ["Total"] + CCYS:
+                vr = lat[lat["Dimension"] == c]["Value"]
                 tr[c] = vr.values[0] if not vr.empty else 0
             mrows.append(tr)
             mdf = pd.DataFrame(mrows).set_index("Tenor")
-            co  = ["Total"]+CCYS
+            co  = ["Total"] + CCYS
             fh  = go.Figure(go.Heatmap(
-                z=mdf[co].values,x=co,y=mdf.index.tolist(),
-                colorscale=HEATMAP_SCALE,zmid=0,
+                z=mdf[co].values, x=co, y=mdf.index.tolist(),
+                colorscale=HEATMAP_SCALE, zmid=0,
                 text=[[f"{v:,.0f}" for v in row] for row in mdf[co].values],
-                texttemplate="%{text}",textfont=dict(family="Space Mono",size=10,color=TEXT0),
+                texttemplate="%{text}",
+                textfont=dict(family="Space Mono", size=10, color=TEXT0),
                 hovertemplate="Tenor: %{y}<br>CCY: %{x}<br>Value: %{z:,.0f}<extra></extra>",
-                colorbar=dict(tickfont=dict(family="Space Mono",size=8,color=TEXT2),bgcolor=BG1,bordercolor=BORD),
+                colorbar=dict(tickfont=dict(family="Space Mono", size=8, color=TEXT2),
+                              bgcolor=BG1, bordercolor=BORD),
             ))
-            apply_dark(fh,height=300,title=dict(text=f"{rsel} — Tenor × CCY",font=dict(size=11,color=TEXT0)))
+            apply_dark(fh, height=300,
+                       title=dict(text=f"{rsel} — Tenor × CCY", font=dict(size=11, color=TEXT0)))
             st.plotly_chart(fh, use_container_width=True)
-
+ 
+        # ── Issuer bar (latest day) ───────────────────────────────────────────
         if is_iss:
             sh(f"{rsel} by Issuer · {latest_d.strftime('%d %b %Y')}")
-            lat = rdata[rdata["Date"]==latest_d]
-            il  = (lat[lat["Dimension"].isin(ISSUERS)].groupby("Dimension")["Value"].sum()
+            lat = rdata[rdata["Date"] == latest_d]
+            il  = (lat[lat["Dimension"].isin(ISSUERS)]
+                   .groupby("Dimension")["Value"].sum()
                    .sort_values(ascending=True).reset_index())
             fi  = go.Figure(go.Bar(
-                x=il["Value"],y=il["Dimension"],orientation="h",
-                marker_color=[RED if v<0 else GREEN for v in il["Value"]],
+                x=il["Value"], y=il["Dimension"], orientation="h",
+                marker_color=[RED if v < 0 else GREEN for v in il["Value"]],
                 text=[f"{v:,.0f}" for v in il["Value"]],
-                textposition="outside",textfont=dict(family="Space Mono",size=8,color=TEXT2),
+                textposition="outside",
+                textfont=dict(family="Space Mono", size=8, color=TEXT2),
                 hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
             ))
-            apply_dark(fi,height=400,title=dict(text=f"{rsel} by Issuer",font=dict(size=11,color=TEXT0)))
+            apply_dark(fi, height=400,
+                       title=dict(text=f"{rsel} by Issuer", font=dict(size=11, color=TEXT0)))
             st.plotly_chart(fi, use_container_width=True)
-
+ 
+        # ── Time-series with granular tenor×ccy dimension picker ─────────────
         sh(f"{rsel} Over Time")
-        if is_tc:   dim_opts,defs = ["Total"]+CCYS+TENORS, ["Total"]+CCYS
-        elif is_iss: dim_opts,defs = ["Total"]+ISSUERS, ["Total"]
-        else:        dim_opts,defs = ["Total"]+CCYS, ["Total"]+CCYS
-
-        dims = st.multiselect("Dimensions", dim_opts, default=defs, key="rdims")
-        rts  = (rdata[rdata["Dimension"].isin(dims)]
-                .groupby(["Date","Dimension"])["Value"].sum().reset_index()
-                .pivot(index="Date",columns="Dimension",values="Value").fillna(0).sort_index())
-        fts  = go.Figure()
-        for i,d in enumerate(dims):
-            if d not in rts.columns: continue
-            fts.add_trace(go.Scatter(x=rts.index,y=rts[d],name=d,mode="lines",
-                line=dict(color=CCY_COLORS.get(d,ISSUER_PALETTE[i%len(ISSUER_PALETTE)]),width=1.6),
-                hovertemplate=f"{d}: %{{y:,.0f}}<extra></extra>"))
-        fts.add_hline(y=0,line_color=BORD2,line_width=1)
-        apply_dark(fts,height=340,title=dict(text=f"{rsel} — Daily Positions",font=dict(size=11,color=TEXT0)))
+ 
+        if is_tc:
+            # Pull every dimension present in filtered data
+            all_dims_in_data = sorted(rdata["Dimension"].unique().tolist())
+ 
+            # Bucket into three groups
+            cross_dims = sorted([
+                d for d in all_dims_in_data
+                if "_" in d
+                and d.split("_")[0] in TENORS
+                and d.split("_")[1] in CCYS
+            ])  # e.g. 5Y_EUR, 10Y_GBP
+            tenor_dims = [d for d in all_dims_in_data if d in TENORS]
+            ccy_dims   = [d for d in all_dims_in_data if d in CCYS or d == "Total"]
+ 
+            st.markdown(
+                '<div style="font-family:var(--mono);font-size:0.6rem;color:var(--text2);'
+                'letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem">'
+                'Pick dimensions — mix tenor×ccy crosses, tenor totals, or ccy totals'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+ 
+            col_r1, col_r2, col_r3 = st.columns(3)
+            with col_r1:
+                sel_cross = st.multiselect(
+                    "Tenor × CCY crosses",
+                    cross_dims,
+                    default=[],
+                    key="rdims_cross",
+                    placeholder="e.g. 5Y_EUR, 10Y_GBP …",
+                )
+            with col_r2:
+                # Default to first 2 tenors only when no crosses selected
+                default_tenors = tenor_dims[:2] if not sel_cross else []
+                sel_tenor = st.multiselect(
+                    "Tenor totals (all CCY)",
+                    tenor_dims,
+                    default=default_tenors,
+                    key="rdims_tenor",
+                )
+            with col_r3:
+                default_ccy = ["Total"] if (not sel_cross and not sel_tenor) else []
+                sel_ccy = st.multiselect(
+                    "CCY / aggregate totals",
+                    ccy_dims,
+                    default=default_ccy,
+                    key="rdims_ccy",
+                )
+ 
+            dims = sel_cross + sel_tenor + sel_ccy
+            if not dims:
+                dims = ["Total"]
+ 
+        elif is_iss:
+            dims = st.multiselect("Dimensions", ["Total"] + ISSUERS,
+                                  default=["Total"], key="rdims")
+            if not dims:
+                dims = ["Total"]
+        else:
+            dims = st.multiselect("Dimensions", ["Total"] + CCYS,
+                                  default=["Total"] + CCYS, key="rdims")
+            if not dims:
+                dims = ["Total"]
+ 
+        # Build time-series pivot & chart
+        rts = (rdata[rdata["Dimension"].isin(dims)]
+               .groupby(["Date", "Dimension"])["Value"].sum().reset_index()
+               .pivot(index="Date", columns="Dimension", values="Value")
+               .fillna(0).sort_index())
+ 
+        fts = go.Figure()
+        for i, d in enumerate(dims):
+            if d not in rts.columns:
+                continue
+            if d == "Total":
+                col = TEXT0
+            elif d in CCY_COLORS:
+                col = CCY_COLORS[d]
+            else:
+                col = ISSUER_PALETTE[i % len(ISSUER_PALETTE)]
+            label = d.replace("_", " · ")
+            fts.add_trace(go.Scatter(
+                x=rts.index, y=rts[d], name=label, mode="lines",
+                line=dict(color=col, width=1.6),
+                hovertemplate=f"{label}: %{{y:,.0f}}<extra></extra>",
+            ))
+ 
+        fts.add_hline(y=0, line_color=BORD2, line_width=1)
+        apply_dark(fts, height=360,
+                   title=dict(text=f"{rsel} — by Dimension Over Time",
+                              font=dict(size=11, color=TEXT0)))
         st.plotly_chart(fts, use_container_width=True)
-
+ 
+        # ── Quick-compare: one tenor, all 3 CCYs ─────────────────────────────
+        if is_tc:
+            sh("Quick Compare — One Tenor, All Currencies")
+            qtenor = st.selectbox("Pick tenor", TENORS, key="qtenor")
+            q_dims  = [f"{qtenor}_{c}" for c in CCYS] + [qtenor]
+            q_avail = [d for d in q_dims if d in rdata["Dimension"].unique()]
+            qts = (rdata[rdata["Dimension"].isin(q_avail)]
+                   .groupby(["Date", "Dimension"])["Value"].sum().reset_index()
+                   .pivot(index="Date", columns="Dimension", values="Value")
+                   .fillna(0).sort_index())
+            fq = go.Figure()
+            ccy_line_colors = {"EUR": BLUE, "GBP": GREEN, "USD": ACCENT}
+            for d in q_avail:
+                if d not in qts.columns:
+                    continue
+                is_tenor_total = d == qtenor
+                if is_tenor_total:
+                    col, lw, dash = TEXT0, 2.2, "dot"
+                else:
+                    ccy_key = d.split("_")[1]
+                    col, lw, dash = ccy_line_colors.get(ccy_key, SLATE), 1.5, "solid"
+                fq.add_trace(go.Scatter(
+                    x=qts.index, y=qts[d],
+                    name=d.replace("_", " · "),
+                    mode="lines",
+                    line=dict(color=col, width=lw, dash=dash),
+                    hovertemplate=f"{d}: %{{y:,.0f}}<extra></extra>",
+                ))
+            fq.add_hline(y=0, line_color=BORD2, line_width=1)
+            apply_dark(fq, height=300,
+                       title=dict(text=f"{rsel} · {qtenor} — EUR / GBP / USD vs Total",
+                                  font=dict(size=11, color=TEXT0)))
+            st.plotly_chart(fq, use_container_width=True)
+ 
+        # ── All risk types · latest day ───────────────────────────────────────
         sh("All Risk Types · Latest Day")
-        atl = frisk[(frisk["Date"]==latest_d)&(frisk["Dimension"]=="Total")]
+        atl = frisk[(frisk["Date"] == latest_d) & (frisk["Dimension"] == "Total")]
         att = atl.groupby("Risk Type")["Value"].sum().sort_values(ascending=True).reset_index()
         fa  = go.Figure(go.Bar(
-            x=att["Value"],y=att["Risk Type"],orientation="h",
-            marker_color=[RISK_COLORS.get(r,"#606070") for r in att["Risk Type"]],
+            x=att["Value"], y=att["Risk Type"], orientation="h",
+            marker_color=[RISK_COLORS.get(r, "#606070") for r in att["Risk Type"]],
             text=[f"{v:,.0f}" for v in att["Value"]],
-            textposition="outside",textfont=dict(family="Space Mono",size=8,color=TEXT2),
+            textposition="outside",
+            textfont=dict(family="Space Mono", size=8, color=TEXT2),
             hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
         ))
-        apply_dark(fa,height=300,title=dict(text=f"Total Risk by Type — {latest_d.strftime('%d %b %Y')}",
-                   font=dict(size=11,color=TEXT0)))
+        apply_dark(fa, height=300,
+                   title=dict(text=f"Total Risk by Type — {latest_d.strftime('%d %b %Y')}",
+                              font=dict(size=11, color=TEXT0)))
         st.plotly_chart(fa, use_container_width=True)
-
 # ══════════════════════════════════════════════
 # TAB 5
 # ══════════════════════════════════════════════
