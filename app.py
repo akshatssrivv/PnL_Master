@@ -614,44 +614,36 @@ with tab1:
     fig2.add_hline(y=0, line_color=BORD2, line_width=1)
     apply_dark(fig2, height=300, title=dict(text="Cumulative PnL by Type", font=dict(size=11,color=TEXT0)))
     st.plotly_chart(fig2, use_container_width=True)
-
     sh("Period Summary")
-    if not daily_pivot.empty:
-        summary = pd.DataFrame({
-            "Total PnL":daily_pivot.sum(), "Daily Avg":daily_pivot.mean(),
-            "Std Dev":daily_pivot.std(), "Best Day":daily_pivot.max(), "Worst Day":daily_pivot.min(),
-        }).round(0).sort_values("Total PnL", ascending=False)
-        st.plotly_chart(summary_table(summary), use_container_width=True)
-
+        if not daily_pivot.empty:
+            summary = pd.DataFrame({
+                "Total PnL":daily_pivot.sum(), "Daily Avg":daily_pivot.mean(),
+                "Std Dev":daily_pivot.std(), "Best Day":daily_pivot.max(), "Worst Day":daily_pivot.min(),
+            }).round(0).sort_values("Total PnL", ascending=False)
+            st.plotly_chart(summary_table(summary), use_container_width=True)
 
     sh("PnL Attribution · Period")
     if not daily_pivot.empty:
         contrib = daily_pivot.drop(columns=["Total"], errors="ignore").sum().sort_values()
         total = daily_pivot["Total"].sum() if "Total" in daily_pivot.columns else contrib.sum()
-        
-        # waterfall
+
         measure = ["relative"] * len(contrib) + ["total"]
         x = contrib.index.tolist() + ["Total"]
         y = contrib.tolist() + [total]
-        
+
         fw = go.Figure(go.Waterfall(
-            orientation="v",
-            measure=measure,
-            x=x,
-            y=y,
+            orientation="v", measure=measure, x=x, y=y,
             connector=dict(line=dict(color=BORD2, width=1)),
             increasing=dict(marker_color=GREEN),
             decreasing=dict(marker_color=RED),
             totals=dict(marker_color=ACCENT),
-            texttemplate="%{y:,.0f}",
-            textposition="outside",
+            texttemplate="%{y:,.0f}", textposition="outside",
             textfont=dict(family="Space Mono", size=8, color=TEXT2),
             hovertemplate="%{x}: %{y:,.0f}<extra></extra>",
         ))
-        apply_dark(fw, height=360, title=dict(text="What drove PnL · Period waterfall", font=dict(size=11, color=TEXT0)))
+        apply_dark(fw, height=360, title=dict(text="What drove PnL · period waterfall", font=dict(size=11, color=TEXT0)))
         st.plotly_chart(fw, use_container_width=True)
-    
-        # % share bar — cleaner for "how much of total"
+
         pct = (contrib / abs(total) * 100).sort_values()
         fp = go.Figure(go.Bar(
             x=pct.index, y=pct.values,
@@ -664,6 +656,226 @@ with tab1:
         apply_dark(fp, height=300, title=dict(text="% share of total PnL by type", font=dict(size=11, color=TEXT0)))
         st.plotly_chart(fp, use_container_width=True)
 
+    sh("Drill Down")
+    if not daily_pivot.empty:
+        ISSUER_TYPES  = {"Credit", "Residual"}
+        TENOR_TYPES   = {"Rates", "BetaRates", "RatesParallel", "RatesCurve",
+                         "RatesSlope", "RatesFly", "SwapSpread", "Inflation",
+                         "ForwardSwap"}
+        CCY_TYPES     = {"Carry", "FX", "NewBusiness"}
+
+        drillable = [t for t in selected_types if t != "Total"]
+        drill_type = st.selectbox("Drill into →", drillable, key="attr_drill")
+
+        # ── route ──────────────────────────────────────────────────────────
+        if drill_type in ISSUER_TYPES:
+            # map drill type to issuer metric
+            metric_map = {"Credit": "CreditPnL", "Residual": "Residual"}
+            metric = metric_map.get(drill_type, "CreditPnL")
+            iss_drill = (
+                fiss[fiss["Metric"] == metric]
+                .groupby("Issuer")["Value"].sum()
+                .sort_values()
+                .reset_index()
+            )
+            if iss_drill.empty:
+                st.info("No issuer data for this type in the selected range.")
+            else:
+                top = iss_drill.iloc[-1]
+                bot = iss_drill.iloc[0]
+                total_v = iss_drill["Value"].sum()
+                top_pct = abs(top["Value"] / total_v * 100) if total_v else 0
+                bot_pct = abs(bot["Value"] / total_v * 100) if total_v else 0
+
+                fi = go.Figure(go.Bar(
+                    x=iss_drill["Value"], y=iss_drill["Issuer"], orientation="h",
+                    marker_color=[RED if v < 0 else GREEN for v in iss_drill["Value"]],
+                    text=[f"{v:,.0f}" for v in iss_drill["Value"]],
+                    textposition="outside",
+                    textfont=dict(family="Space Mono", size=8, color=TEXT2),
+                    hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
+                ))
+                apply_dark(fi, height=420,
+                           title=dict(text=f"{drill_type} · by issuer",
+                                      font=dict(size=11, color=TEXT0)))
+                st.plotly_chart(fi, use_container_width=True)
+
+                # auto-text
+                direction = "added" if top["Value"] > 0 else "dragged"
+                drag_direction = "dragged" if bot["Value"] < 0 else "added"
+                st.markdown(f"""
+                <div style="font-family:var(--mono);font-size:0.7rem;color:var(--text1);
+                            background:var(--bg2);border:1px solid var(--border);
+                            border-left:3px solid var(--accent);
+                            padding:0.8rem 1rem;border-radius:2px;line-height:1.8">
+                  <span style="color:var(--text2)">LARGEST ADD</span> &nbsp;
+                  <span style="color:{GREEN}">{top['Issuer']}</span>
+                  &nbsp;{fmt(top['Value'])}&nbsp;
+                  <span style="color:var(--text2)">({top_pct:.1f}% of total)</span>
+                  &nbsp;&nbsp;·&nbsp;&nbsp;
+                  <span style="color:var(--text2)">LARGEST DRAG</span> &nbsp;
+                  <span style="color:{RED}">{bot['Issuer']}</span>
+                  &nbsp;{fmt(bot['Value'])}&nbsp;
+                  <span style="color:var(--text2)">({bot_pct:.1f}% of total)</span>
+                </div>
+                """, unsafe_allow_html=True)
+
+        elif drill_type in TENOR_TYPES:
+            # tenor × CCY heatmap from PnL data
+            ccy_pnl = pnl_df[
+                (pnl_df["Date"] >= d_start) & (pnl_df["Date"] <= d_end) &
+                (pnl_df["PnL Type"] == drill_type) & (pnl_df["Currency"] != "Total")
+            ].groupby("Currency")["Value"].sum()
+
+            # risk tenor breakdown
+            rtype_map = {
+                "Rates": "RatesRisk", "BetaRates": "BetaRatesRisk",
+                "RatesParallel": "RatesRisk", "RatesCurve": "RatesRisk",
+                "RatesSlope": "RatesRisk", "RatesFly": "RatesRisk",
+                "SwapSpread": "SwapSpreadRisk", "Inflation": "InflationRisk",
+                "ForwardSwap": "RatesRisk",
+            }
+            rtype = rtype_map.get(drill_type)
+            latest_d = frisk["Date"].max()
+
+            col_d1, col_d2 = st.columns([3, 2])
+            with col_d1:
+                if rtype and not frisk.empty:
+                    lat = frisk[(frisk["Risk Type"] == rtype) & (frisk["Date"] == latest_d)]
+                    mrows = []
+                    for t in TENORS:
+                        row = {"Tenor": t}
+                        for c in ["Total"] + CCYS:
+                            k  = f"{t}_{c}" if c != "Total" else t
+                            vr = lat[lat["Dimension"] == k]["Value"]
+                            row[c] = vr.values[0] if not vr.empty else 0
+                        mrows.append(row)
+                    mdf = pd.DataFrame(mrows).set_index("Tenor")
+                    co  = ["Total"] + CCYS
+                    fh  = go.Figure(go.Heatmap(
+                        z=mdf[co].values, x=co, y=mdf.index.tolist(),
+                        colorscale=HEATMAP_SCALE, zmid=0,
+                        text=[[f"{v:,.0f}" for v in row] for row in mdf[co].values],
+                        texttemplate="%{text}",
+                        textfont=dict(family="Space Mono", size=10, color=TEXT0),
+                        hovertemplate="Tenor: %{y}<br>CCY: %{x}<br>Risk: %{z:,.0f}<extra></extra>",
+                        colorbar=dict(tickfont=dict(family="Space Mono", size=8, color=TEXT2),
+                                      bgcolor=BG1, bordercolor=BORD),
+                    ))
+                    apply_dark(fh, height=280,
+                               title=dict(text=f"{rtype} · tenor × CCY (latest day risk)",
+                                          font=dict(size=11, color=TEXT0)))
+                    st.plotly_chart(fh, use_container_width=True)
+                else:
+                    st.info("No risk data to map tenors.")
+
+            with col_d2:
+                if not ccy_pnl.empty:
+                    ccy_df2 = ccy_pnl.sort_values().reset_index()
+                    ccy_df2.columns = ["Currency", "Value"]
+                    fc = go.Figure(go.Bar(
+                        x=ccy_df2["Value"], y=ccy_df2["Currency"], orientation="h",
+                        marker_color=[CCY_COLORS.get(c, SLATE) for c in ccy_df2["Currency"]],
+                        text=[f"{v:,.0f}" for v in ccy_df2["Value"]],
+                        textposition="outside",
+                        textfont=dict(family="Space Mono", size=8, color=TEXT2),
+                        hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
+                    ))
+                    apply_dark(fc, height=280,
+                               title=dict(text=f"{drill_type} PnL · by CCY",
+                                          font=dict(size=11, color=TEXT0)))
+                    st.plotly_chart(fc, use_container_width=True)
+
+            # auto-text
+            if not ccy_pnl.empty:
+                top_c = ccy_pnl.idxmax()
+                bot_c = ccy_pnl.idxmin()
+                total_v = ccy_pnl.sum()
+                st.markdown(f"""
+                <div style="font-family:var(--mono);font-size:0.7rem;color:var(--text1);
+                            background:var(--bg2);border:1px solid var(--border);
+                            border-left:3px solid var(--accent);
+                            padding:0.8rem 1rem;border-radius:2px;line-height:1.8">
+                  <span style="color:var(--text2)">LARGEST ADD</span> &nbsp;
+                  <span style="color:{GREEN}">{top_c}</span>
+                  &nbsp;{fmt(ccy_pnl[top_c])}&nbsp;
+                  <span style="color:var(--text2)">·</span> &nbsp;
+                  <span style="color:var(--text2)">LARGEST DRAG</span> &nbsp;
+                  <span style="color:{RED}">{bot_c}</span>
+                  &nbsp;{fmt(ccy_pnl[bot_c])}
+                  &nbsp;&nbsp;·&nbsp;&nbsp;
+                  <span style="color:var(--text2)">PERIOD TOTAL</span>
+                  &nbsp;{fmt(total_v)}
+                </div>
+                """, unsafe_allow_html=True)
+
+        else:  # CCY_TYPES — Carry, FX, NewBusiness
+            ccy_pnl2 = pnl_df[
+                (pnl_df["Date"] >= d_start) & (pnl_df["Date"] <= d_end) &
+                (pnl_df["PnL Type"] == drill_type) & (pnl_df["Currency"] != "Total")
+            ].groupby("Currency")["Value"].sum().sort_values().reset_index()
+            ccy_pnl2.columns = ["Currency", "Value"]
+
+            if ccy_pnl2.empty:
+                st.info("No CCY breakdown available for this type.")
+            else:
+                # daily evolution per CCY
+                ccy_ts = pnl_df[
+                    (pnl_df["Date"] >= d_start) & (pnl_df["Date"] <= d_end) &
+                    (pnl_df["PnL Type"] == drill_type) & (pnl_df["Currency"] != "Total")
+                ].groupby(["Date", "Currency"])["Value"].sum().reset_index()\
+                 .pivot(index="Date", columns="Currency", values="Value").fillna(0).sort_index()
+
+                col_e1, col_e2 = st.columns([3, 2])
+                with col_e1:
+                    fe2 = go.Figure()
+                    for ccy in ccy_ts.columns:
+                        fe2.add_trace(go.Scatter(
+                            x=ccy_ts.index, y=ccy_ts[ccy].cumsum(),
+                            name=ccy, mode="lines",
+                            line=dict(color=CCY_COLORS.get(ccy, SLATE), width=1.6),
+                            hovertemplate=f"{ccy}: %{{y:,.0f}}<extra></extra>",
+                        ))
+                    apply_dark(fe2, height=280,
+                               title=dict(text=f"{drill_type} · cumulative by CCY",
+                                          font=dict(size=11, color=TEXT0)))
+                    st.plotly_chart(fe2, use_container_width=True)
+
+                with col_e2:
+                    fc2 = go.Figure(go.Bar(
+                        x=ccy_pnl2["Value"], y=ccy_pnl2["Currency"], orientation="h",
+                        marker_color=[CCY_COLORS.get(c, SLATE) for c in ccy_pnl2["Currency"]],
+                        text=[f"{v:,.0f}" for v in ccy_pnl2["Value"]],
+                        textposition="outside",
+                        textfont=dict(family="Space Mono", size=8, color=TEXT2),
+                        hovertemplate="%{y}: %{x:,.0f}<extra></extra>",
+                    ))
+                    apply_dark(fc2, height=280,
+                               title=dict(text=f"{drill_type} · period total by CCY",
+                                          font=dict(size=11, color=TEXT0)))
+                    st.plotly_chart(fc2, use_container_width=True)
+
+                total_v = ccy_pnl2["Value"].sum()
+                top_r = ccy_pnl2.iloc[-1]
+                bot_r = ccy_pnl2.iloc[0]
+                st.markdown(f"""
+                <div style="font-family:var(--mono);font-size:0.7rem;color:var(--text1);
+                            background:var(--bg2);border:1px solid var(--border);
+                            border-left:3px solid var(--accent);
+                            padding:0.8rem 1rem;border-radius:2px;line-height:1.8">
+                  <span style="color:var(--text2)">LARGEST ADD</span> &nbsp;
+                  <span style="color:{GREEN}">{top_r['Currency']}</span>
+                  &nbsp;{fmt(top_r['Value'])}&nbsp;
+                  <span style="color:var(--text2)">·</span> &nbsp;
+                  <span style="color:var(--text2)">LARGEST DRAG</span> &nbsp;
+                  <span style="color:{RED}">{bot_r['Currency']}</span>
+                  &nbsp;{fmt(bot_r['Value'])}
+                  &nbsp;&nbsp;·&nbsp;&nbsp;
+                  <span style="color:var(--text2)">PERIOD TOTAL</span>
+                  &nbsp;{fmt(total_v)}
+                </div>
+                """, unsafe_allow_html=True)
+    
 # ══════════════════════════════════════════════
 # TAB 2
 # ══════════════════════════════════════════════
